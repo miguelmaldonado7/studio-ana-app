@@ -1,13 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "destination": "https://studio-ana-api.onrender.com/$1"
     },
     {
-      "source":"/(.*)",
-      "destination":"/index.html"
-
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
