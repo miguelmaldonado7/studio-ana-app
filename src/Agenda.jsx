@@ -9,6 +9,35 @@ import { authFetch } from './utils/authFetch';
 const locales = { 'pt-BR': ptBR };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
+const EventoComTooltip = ({ event }) => {
+  return (
+    // 'group' no Tailwind permite controlar os filhos ao passar o mouse no pai
+    <div className="group relative w-full h-full">
+      {/* Este é o texto que aparece DENTRO do quadradinho rosa (pode continuar cortado se muito grande) */}
+      <div className="rbc-event-content truncate p-1">
+        {event.title}
+      </div>
+
+      {/* ESTA É A JANELA FLUTUANTE (TOOLTIP) QUE APARECE AO PASSAR O MOUSE */}
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl whitespace-normal break-words pointer-events-none border border-gray-700">
+        <span className="font-semibold block mb-1 text-rose-300">Detalhes do Agendamento:</span>
+        {/* Mostra o texto completo aqui */}
+        {event.title}
+        
+        {/* Opcional: Mostra também as notas se houver */}
+        {event.notas && (
+          <div className="mt-2 text-gray-300 italic border-t border-gray-700 pt-1">
+            Notas: {event.notas}
+          </div>
+        )}
+        
+        {/* Pequena setinha apontando para baixo */}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+      </div>
+    </div>
+  );
+};
+
 export default function Agenda() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataSelecionada, setDataSelecionada] = useState(null);
@@ -109,6 +138,7 @@ export default function Agenda() {
           localizer={localizer}
           events={eventos} 
           selectable
+          components={{ event: EventoComTooltip }}
           onSelectSlot={(s) => { 
             // NOVO: Limpa o campo de serviço ao abrir um horário novo
             setAgendamentoEditando(null); setNome(''); setTelefone(''); setEstimativa(''); setNotas(''); setServico(''); 
@@ -126,7 +156,6 @@ export default function Agenda() {
               borderRadius: '4px', 
               color: 'white', 
               fontSize: '11px',
-              whiteSpace: 'normal', /* Permite que o texto quebre para a linha de baixo */
               wordBreak: 'break-word', /* Impede que palavras gigantes vazem para fora da caixa */
               padding: '4px', /* Dá um pequeno respiro interno para o texto não colar nas bordas */
               height: 'auto' /* Permite que a caixa cresça consoante a quantidade de texto */
