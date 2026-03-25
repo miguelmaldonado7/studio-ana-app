@@ -9,31 +9,20 @@ import { authFetch } from './utils/authFetch';
 const locales = { 'pt-BR': ptBR };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
-const EventoComTooltip = ({ event }) => {
+const VisualDoEvento = ({ event }) => {
   return (
-    // 'group' no Tailwind permite controlar os filhos ao passar o mouse no pai
-    <div className="group relative w-full h-full">
-      {/* Este é o texto que aparece DENTRO do quadradinho rosa (pode continuar cortado se muito grande) */}
-      <div className="rbc-event-content truncate p-1">
-        {event.title}
+    <div className="leading-tight p-0.5">
+      {/* Primeira linha: Nome da cliente em negrito */}
+      <div className="font-bold text-white truncate text-xs">
+        {event.nomePuro || event.title.split(' - ')[0]}
       </div>
-
-      {/* ESTA É A JANELA FLUTUANTE (TOOLTIP) QUE APARECE AO PASSAR O MOUSE */}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl whitespace-normal break-words pointer-events-none border border-gray-700">
-        <span className="font-semibold block mb-1 text-rose-300">Detalhes do Agendamento:</span>
-        {/* Mostra o texto completo aqui */}
-        {event.title}
-        
-        {/* Opcional: Mostra também as notas se houver */}
-        {event.notas && (
-          <div className="mt-2 text-gray-300 italic border-t border-gray-700 pt-1">
-            Notas: {event.notas}
-          </div>
-        )}
-        
-        {/* Pequena setinha apontando para baixo */}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
-      </div>
+      
+      {/* Segunda linha: Serviço e Valor um pouco menores */}
+      {event.servico && (
+        <div className="text-[10.5px] text-rose-100 truncate mt-0.5 font-medium">
+          {event.servico}
+        </div>
+      )}
     </div>
   );
 };
@@ -67,7 +56,6 @@ export default function Agenda() {
       setEventos(dadosDoBanco.map(a => ({
         id: a.id,
         cliente_id: a.cliente_id,
-        // NOVO: Se tiver serviço, junta com o nome. Se não, mostra só o nome.
         title: a.servico ? `${a.clientes?.nome || 'Cliente'} - ${a.servico}` : (a.clientes?.nome || 'Cliente'),
         nomePuro: a.clientes?.nome || '', // Guarda o nome puro para colocar no form ao editar
         start: new Date(a.data_hora_inicio),
@@ -75,7 +63,7 @@ export default function Agenda() {
         telefone: a.clientes?.telefone || '',
         estimativaRetorno: a.estimativa_retorno_meses || '',
         notas: a.notas || '',
-        servico: a.servico || '' // Puxa o serviço do banco
+        servico: a.servico || '' 
       })));
     } catch (e) { console.error(e); }
   };
@@ -89,7 +77,7 @@ export default function Agenda() {
       telefone: telefone.trim(),
       estimativaRetorno: parseInt(estimativa) || null,
       notas: notas.trim(),
-      servico: servico.trim() // NOVO: Envia o serviço para o backend
+      servico: servico.trim() 
     };
 
     try {
@@ -138,14 +126,12 @@ export default function Agenda() {
           localizer={localizer}
           events={eventos} 
           selectable
-          components={{ event: EventoComTooltip }}
+          components={{ event: VisualDoEvento }}
           onSelectSlot={(s) => { 
-            // NOVO: Limpa o campo de serviço ao abrir um horário novo
             setAgendamentoEditando(null); setNome(''); setTelefone(''); setEstimativa(''); setNotas(''); setServico(''); 
             setDataSelecionada(s.start); setIsModalOpen(true); 
           }}
           onSelectEvent={(e) => { 
-            // NOVO: Puxa o serviço e o nome puro ao clicar para editar
             setAgendamentoEditando(e); setNome(e.nomePuro); setTelefone(e.telefone); 
             setEstimativa(e.estimativaRetorno); setNotas(e.notas); setServico(e.servico); 
             setDataSelecionada(e.start); setIsModalOpen(true); 
@@ -154,11 +140,8 @@ export default function Agenda() {
             style: { 
               backgroundColor: '#f43f5e', 
               borderRadius: '4px', 
-              color: 'white', 
-              fontSize: '11px',
-              wordBreak: 'break-word', /* Impede que palavras gigantes vazem para fora da caixa */
-              padding: '4px', /* Dá um pequeno respiro interno para o texto não colar nas bordas */
-              height: 'auto' /* Permite que a caixa cresça consoante a quantidade de texto */
+              border: 'none',
+              color: 'white'
             } 
           })}
           date={dataCalendario}
@@ -186,7 +169,6 @@ export default function Agenda() {
                 <input type="text" disabled value={dataSelecionada ? format(dataSelecionada, 'dd/MM/yyyy') : ''} className="w-full border p-2.5 rounded-lg bg-gray-50 text-gray-500" />
               </div>
 
-              {/* NOVO: Campo para digitar o Serviço e Valor */}
               <div>
                 <input value={servico} onChange={(e) => setServico(e.target.value)} type="text" className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-rose-200" placeholder="Serviço e Valor (Ex: Luzes R$980,00)" />
               </div>
