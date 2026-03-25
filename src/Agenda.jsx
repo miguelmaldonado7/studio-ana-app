@@ -120,7 +120,18 @@ export default function Agenda() {
             setEstimativa(e.estimativaRetorno); setNotas(e.notas); setServico(e.servico); 
             setDataSelecionada(e.start); setIsModalOpen(true); 
           }}
-          eventPropGetter={() => ({ style: { backgroundColor: '#f43f5e', borderRadius: '4px', color: 'white', fontSize: '11px' } })}
+          eventPropGetter={() => ({ 
+            style: { 
+              backgroundColor: '#f43f5e', 
+              borderRadius: '4px', 
+              color: 'white', 
+              fontSize: '11px',
+              whiteSpace: 'normal', /* Permite que o texto quebre para a linha de baixo */
+              wordBreak: 'break-word', /* Impede que palavras gigantes vazem para fora da caixa */
+              padding: '4px', /* Dá um pequeno respiro interno para o texto não colar nas bordas */
+              height: 'auto' /* Permite que a caixa cresça consoante a quantidade de texto */
+            } 
+          })}
           date={dataCalendario}
           onNavigate={setDataCalendario}
           view={visualizacao}
